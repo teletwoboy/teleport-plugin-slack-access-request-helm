@@ -52,7 +52,7 @@ please refer to the [teleport-plugin-slack-access-request installation](https://
 
 <br>
 
-### License
+## License
 
 This project is licensed under the [Apache License 2.0](LICENSE)
 
