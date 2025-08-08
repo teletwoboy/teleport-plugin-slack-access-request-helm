@@ -23,7 +23,7 @@ It is versioned by Git tag rather than the Helm Repository, and will be refactor
 For installation instructions, <br>
 please refer to the [teleport-plugin-slack-access-request installation](https://github.com/teletwoboy/teleport-plugin-slack-access-request?tab=readme-ov-file#installation-with-argocd). <br>
 <br>
-[teletwoboy](https://github.com/teletwoboy) aims for infrastructure management based on ArgoCD.
+[teletwoboy](https://github.com/teletwoboy) aims for infrastructure management based on GitOps.
 
 <br>
 
