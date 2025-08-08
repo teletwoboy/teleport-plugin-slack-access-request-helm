@@ -27,7 +27,7 @@ please refer to the [teleport-plugin-slack-access-request installation](https://
 
 <br>
 
-## Structure
+## Directory Structure
 ```
 .
 ├── charts                          # Directory containing packaged chart dependencies
