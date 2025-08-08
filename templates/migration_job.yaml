@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "slack-access-request.fullname" . }}-migration
+  labels:
+    {{- include "slack-access-request.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrat
+          image: "{{ .Values.migration.imageRepository }}:{{ .Values.migration.imageTag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.migration.imagePullPolicy }}
+          command: [ "sh", "-c" ] 
+          args: 
+            - |
+              until PGPASSWORD=${DATABASE_PASSWORD} psql -h "${DATABASE_HOST}" -U "${DATABASE_USERNAME}" -d "${DATABASE_NAME}" -c 'SELECT 1'; do       
+                echo "Waiting for PostgreSQL to be ready..."
+                sleep 2
+              done
+
+              echo "PostgreSQL is ready. Running migrations..."
+
+              DB_URL="postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?sslmode=disable" && \
+              migrate -path=/app -database=$DB_URL up
+          env:
+          {{ $namespace := .Release.Namespace }}
+          {{- with .Values.postgresql }}
+            - name: DATABASE_HOST
+              value: {{ include "postgresql.fullname" $ }}.{{ $namespace }}.svc.cluster.local
+            - name: DATABASE_PORT
+              value: {{ .primary.service.ports.postgresql | quote }}
+            - name: DATABASE_NAME
+              value: {{ .auth.database }}
+            - name: DATABASE_USERNAME
+              value: {{ .auth.username }}
+            {{ include "slack-access-request.envFromSecretOrValue" (list "DATABASE_PASSWORD" .auth.password .auth.existingSecret .auth.secretKeys.adminPasswordKey) | nindent 12 }}
+          {{- end }}

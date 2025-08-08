@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "slack-access-request.fullname" . }}
+  labels:
+    {{- include "slack-access-request.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "slack-access-request.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "slack-access-request.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "slack-access-request.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.server.port }}
+              protocol: TCP
+          env:
+          {{- with .Values.server.secret }}
+            {{ include "slack-access-request.envFromSecretOrValue" (list "SLACK_TOKEN" .slackToken .existingSecret .secretKeys.slackToken) | nindent 12 }}
+            {{ include "slack-access-request.envFromSecretOrValue" (list "SLACK_SIGNING_SECRET" .slackSigningSecret .existingSecret .secretKeys.slackSigningSecret) | nindent 12 }}
+            {{ include "slack-access-request.envFromSecretOrValue" (list "SLACK_DEFAULT_NOTIF_CHANNEL_ID" .slackDefaultNotifChannelID .existingSecret .secretKeys.slackDefaultNotifChannelID) | nindent 12 }}
+            {{ include "slack-access-request.envFromSecretOrValue" (list "TELEPORT_ADDRESS" .teleportAddress .existingSecret .secretKeys.teleportAddress) | nindent 12 }}
+          {{- end }}
+            - name: SERVER_PORT
+              value: {{ .Values.server.port | quote }}
+            - name: TELEPORT_IDENTITY_PATH
+              value: {{ .Values.server.teleport.identity.mountPath }}/{{ .Values.server.teleport.identity.filename }}
+
+          {{ $namespace := .Release.Namespace }}
+          {{- with .Values.postgresql }}
+            - name: DATABASE_HOST
+              value: {{ include "postgresql.fullname" $ }}.{{ $namespace }}.svc.cluster.local
+            - name: DATABASE_PORT
+              value: {{ .primary.service.ports.postgresql | quote }}
+            - name: DATABASE_NAME
+              value: {{ .auth.database }}
+            - name: DATABASE_USERNAME
+              value: {{ .auth.username }}
+            {{ include "slack-access-request.envFromSecretOrValue" (list "DATABASE_PASSWORD" .auth.password .auth.existingSecret .auth.secretKeys.adminPasswordKey) | nindent 12 }}
+          {{- end }}
+
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: teleport-identity
+              mountPath: {{ .Values.server.teleport.identity.mountPath }}
+              readOnly: true
+          {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 2 }}
+          {{- end }}
+      volumes:
+        - name: teleport-identity
+          secret:
+            secretName: {{ required (print "teleport.identity.secretName is required") .Values.server.teleport.identity.secretName }}
+            items:
+              - key: {{ .Values.server.teleport.identity.key }}
+                path: {{ .Values.server.teleport.identity.filename }}
+      {{- with .Values.volumes }}
+        {{- toYaml . | nindent 2 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
