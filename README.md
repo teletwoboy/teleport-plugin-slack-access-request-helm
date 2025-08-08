@@ -46,7 +46,6 @@ please refer to the [teleport-plugin-slack-access-request installation](https://
 ├── .helmignore                     # Files and directories to ignore when packaging the chart (similar to .gitignore)
 ├── Chart.lock                      # Lock file for chart dependencies to ensure consistent versions
 ├── Chart.yaml                      # Main Helm chart metadata (name, version, description, dependencies, etc.)
-├── README.md                       # Documentation describing the chart usage, configuration, and installation
 └── values.yaml                      # Default configuration values for the chart; can be overridden by the user
 ```
 
