@@ -106,6 +106,9 @@ postgresql:
       ##
       ports:
         postgresql: 5432
+    
+    annotations:
+      "argocd.argoproj.io/sync-wave": "0"
 
   ## TLS configuration
   ##

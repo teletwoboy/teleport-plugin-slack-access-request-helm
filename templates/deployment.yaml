@@ -4,6 +4,8 @@ metadata:
   name: {{ include "slack-access-request.fullname" . }}
   labels:
     {{- include "slack-access-request.labels" . | nindent 4 }}
+  annotations:
+    "argocd.argoproj.io/sync-wave": "10"
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
