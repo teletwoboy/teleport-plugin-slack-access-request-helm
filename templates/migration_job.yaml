@@ -4,7 +4,6 @@ metadata:
   name: {{ include "slack-access-request.fullname" . }}-migration
   labels:
     {{- include "slack-access-request.labels" . | nindent 4 }}
-  {{- with .Values.migration.annotations }}
   annotations:
     "helm.sh/hook": post-install,pre-upgrade
     "helm.sh/hook-weight": "-5"
