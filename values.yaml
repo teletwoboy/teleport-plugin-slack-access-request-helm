@@ -57,7 +57,7 @@ server:
 migration:
   imageRepository: springboothate/teleport-plugin-slack-access-request-migration
   imagePullPolicy: IfNotPresent
-  imageTag: 1.0.0
+  imageTag: 0.1.0
 
 postgresql:
   ## Authentication parameters
