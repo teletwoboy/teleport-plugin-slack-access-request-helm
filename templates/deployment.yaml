@@ -67,6 +67,13 @@ spec:
             {{ include "slack-access-request.envFromSecretOrValue" (list "DATABASE_PASSWORD" .auth.password .auth.existingSecret .auth.secretKeys.adminPasswordKey) | nindent 12 }}
           {{- end }}
 
+          {{- if .Values.postgresql.tls.enabled }}
+            - name: DATABASE_SSL_MODE
+              value: "verify-full"
+            - name: DATABASE_SSLROOTCERT
+              value: "/etc/db/ca/ca.crt"
+          {{- end }}
+
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
@@ -80,6 +87,14 @@ spec:
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 2 }}
           {{- end }}
+
+          {{- with .Values.postgresql }}
+            {{- if .tls.enabled }}
+            - name: db-ca
+              mountPath: "/etc/db/ca"
+              readOnly: true
+            {{- end }}
+          {{- end }}
       volumes:
         - name: teleport-identity
           secret:
@@ -87,6 +102,17 @@ spec:
             items:
               - key: {{ .Values.server.teleport.identity.key }}
                 path: {{ .Values.server.teleport.identity.filename }}
+      {{- with .Values.postgresql }}
+        {{- if .tls.enabled }}
+        - name: db-ca
+          secret:
+            secretName: {{ .tls.certificatesSecret }}
+            items:
+              - key: ca.crt
+              - path: ca.crt
+        {{- end }}
+      {{- end }}
+          
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 2 }}
       {{- end }}
