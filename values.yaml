@@ -60,10 +60,6 @@ migration:
   imageTag: 0.1.0
 
 postgresql:
-  ## @param commonAnnotations Add annotations to all the deployed resources
-  ##
-  commonAnnotations:
-    argocd.argoproj.io/sync-wave: "1"
   ## Bitnami PostgreSQL image version
   ## ref: https://hub.docker.com/r/bitnami/postgresql/tags/
   ## @param image.registry [default: REGISTRY_NAME] PostgreSQL image registry
@@ -142,7 +138,7 @@ postgresql:
         postgresql: 5432
     
     annotations:
-      "argocd.argoproj.io/sync-wave": "0"
+      "argocd.argoproj.io/sync-wave": "1"
 
   ## TLS configuration
   ##
