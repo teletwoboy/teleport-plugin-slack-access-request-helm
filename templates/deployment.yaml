@@ -70,7 +70,7 @@ spec:
           {{- if .Values.postgresql.tls.enabled }}
             - name: DATABASE_SSL_MODE
               value: "verify-full"
-            - name: DATABASE_SSLROOTCERT
+            - name: DATABASE_SSL_ROOT_CERT
               value: "/etc/db/ca/ca.crt"
           {{- end }}
 
