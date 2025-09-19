@@ -154,7 +154,7 @@ postgresql:
     preferServerCiphers: true
     ## @param tls.certificatesSecret Name of an existing secret that contains the certificates
     ##
-    certificatesSecret: "teleport-plugin-slack-access-request-postgresql d-tls"
+    certificatesSecret: "teleport-plugin-slack-access-request-postgresql-tls"
     ## @param tls.certFilename Certificate filename
     ##
     certFilename: "tls.crt"
