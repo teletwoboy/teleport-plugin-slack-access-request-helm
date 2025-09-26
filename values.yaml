@@ -54,6 +54,12 @@ server:
       key: identity
       filename: identity.json
   
+  otel:
+    enabled: false
+    endpoint: ""
+    serviceName: slack-access-request
+    samplingRatio: 1.0
+  
 migration:
   imageRepository: springboothate/teleport-plugin-slack-access-request-migration
   imagePullPolicy: IfNotPresent

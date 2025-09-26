@@ -74,6 +74,17 @@ spec:
               value: "/etc/db/ca/ca.crt"
           {{- end }}
 
+          {{- if .Values.server.otel.enabled }}
+            - name: OTEL_ENABLE
+              value: {{ .Values.server.otel.enabled | quote }}
+            - name: OTEL_ENDPOINT
+              value: {{ .Values.server.otel.endpoint | quote }}
+            - name: OTEL_SERVICE_NAME
+              value: {{ .Values.server.otel.serviceName | quote }}
+            - name: OTEL_SAMPLING_RATIO
+              value: {{ .Values.server.otel.samplingRatio | quote }}
+          {{- end }}
+
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
