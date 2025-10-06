@@ -26,11 +26,11 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create a default fully qualified postgresql name.
 */}}
-{{- define "postgresql.fullname" -}}
-{{- if .Values.postgresql.fullnameOverride }}
-{{- .Values.postgresql.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- define "postgres.fullname" -}}
+{{- if .Values.postgres.fullnameOverride }}
+{{- .Values.postgres.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- $name := default "postgresql" .Values.postgresql.nameOverride }}
+{{- $name := default "postgres" .Values.postgres.nameOverride }}
 {{- if contains $name .Release.Name }}
 {{- .Release.Name | trunc 63 | trimSuffix "-" }}
 {{- else }}
