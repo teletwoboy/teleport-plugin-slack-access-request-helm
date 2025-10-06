@@ -30,56 +30,20 @@ spec:
               echo "PostgreSQL is ready. Running migrations..."
 
               DB_URL_BASE="postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}"
-              {{- if .Values.postgresql.tls.enabled }}
-              DB_URL="${DB_URL_BASE}?sslmode=${PGSSLMODE}&sslrootcert=${PGSSLROOTCERT}" 
-              {{- else }}
-              DB_URL="${DB_URL_BASE}?sslmode=${PGSSLMODE}" 
-              {{- end }}
+              DB_URL="${DB_URL_BASE}?sslmode=disable"
 
               migrate -path=/app -database=$DB_URL up
           env:
           {{ $namespace := .Release.Namespace }}
-          {{- with .Values.postgresql }}
+          {{- with .Values.postgres }}
             - name: DATABASE_HOST
-              value: {{ include "postgresql.fullname" $ }}.{{ $namespace }}.svc.cluster.local
+              value: {{ include "postgres.fullname" $ }}.{{ $namespace }}.svc.cluster.local
             - name: DATABASE_PORT
-              value: {{ .primary.service.ports.postgresql | quote }}
+              value: {{ .service.port | quote }}
             - name: DATABASE_NAME
               value: {{ .auth.database }}
             - name: DATABASE_USERNAME
               value: {{ .auth.username }}
-            {{ include "slack-access-request.envFromSecretOrValue" (list "DATABASE_PASSWORD" .auth.password .auth.existingSecret .auth.secretKeys.adminPasswordKey) | nindent 12 }}
+            {{ include "slack-access-request.envFromSecretOrValue" (list "DATABASE_PASSWORD" .auth.password .auth.existingSecret .auth.secretKeys.passwordKey) | nindent 12 }}
           {{- end }}
-
-          {{- with .Values.postgresql }}
-            {{- if .tls.enabled }}
-            - name: PGSSLMODE
-              value: "verify-full"
-            - name: PGSSLROOTCERT
-              value: "/etc/db/ca/ca.crt"
-            {{- else }}
-            - name: PGSSLMODE
-              value: "disable"
-            {{- end }}
-          {{- end }}
-          
-          volumeMounts:
-          {{- with .Values.postgresql }}
-            {{- if .tls.enabled }}
-            - name: db-ca
-              mountPath: "/etc/db/ca"
-              readOnly: true
-            {{- end }}
-          {{- end }}
-      volumes:
-      {{- with .Values.postgresql }}
-        {{- if .tls.enabled }}
-        - name: db-ca
-          secret:
-            secretName: {{ .tls.certificatesSecret }}
-            items:
-              - key: ca.crt
-              - path: ca.crt
-        {{- end }}
-      {{- end }}
           

@@ -55,23 +55,16 @@ spec:
               value: {{ .Values.server.teleport.identity.mountPath }}/{{ .Values.server.teleport.identity.filename }}
 
           {{ $namespace := .Release.Namespace }}
-          {{- with .Values.postgresql }}
+          {{- with .Values.postgres }}
             - name: DATABASE_HOST
-              value: {{ include "postgresql.fullname" $ }}.{{ $namespace }}.svc.cluster.local
+              value: {{ include "postgres.fullname" $ }}.{{ $namespace }}.svc.cluster.local
             - name: DATABASE_PORT
-              value: {{ .primary.service.ports.postgresql | quote }}
+              value: {{ .service.port | quote }}
             - name: DATABASE_NAME
               value: {{ .auth.database }}
             - name: DATABASE_USERNAME
               value: {{ .auth.username }}
-            {{ include "slack-access-request.envFromSecretOrValue" (list "DATABASE_PASSWORD" .auth.password .auth.existingSecret .auth.secretKeys.adminPasswordKey) | nindent 12 }}
-          {{- end }}
-
-          {{- if .Values.postgresql.tls.enabled }}
-            - name: DATABASE_SSL_MODE
-              value: "verify-full"
-            - name: DATABASE_SSL_ROOT_CERT
-              value: "/etc/db/ca/ca.crt"
+            {{ include "slack-access-request.envFromSecretOrValue" (list "DATABASE_PASSWORD" .auth.password .auth.existingSecret .auth.secretKeys.passwordKey) | nindent 12 }}
           {{- end }}
 
           {{- if .Values.server.otel.enabled }}
@@ -99,13 +92,6 @@ spec:
             {{- toYaml . | nindent 2 }}
           {{- end }}
 
-          {{- with .Values.postgresql }}
-            {{- if .tls.enabled }}
-            - name: db-ca
-              mountPath: "/etc/db/ca"
-              readOnly: true
-            {{- end }}
-          {{- end }}
       volumes:
         - name: teleport-identity
           secret:
@@ -113,16 +99,6 @@ spec:
             items:
               - key: {{ .Values.server.teleport.identity.key }}
                 path: {{ .Values.server.teleport.identity.filename }}
-      {{- with .Values.postgresql }}
-        {{- if .tls.enabled }}
-        - name: db-ca
-          secret:
-            secretName: {{ .tls.certificatesSecret }}
-            items:
-              - key: ca.crt
-              - path: ca.crt
-        {{- end }}
-      {{- end }}
           
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 2 }}
