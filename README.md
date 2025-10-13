@@ -31,22 +31,26 @@ please refer to the [teleport-plugin-slack-access-request installation](https://
 ```
 .
 ├── charts                          # Directory containing packaged chart dependencies
-│   └── postgresql-16.5.0.tgz       # Packaged PostgreSQL chart dependency (version 16.5.0)
+│   └── postgres-0.7.2.tgz          # Packaged PostgreSQL chart dependency (version 0.7.2)
 ├── templates                       # Kubernetes manifest templates with Helm placeholders/logic
 │   ├── NOTES.txt                   # Post-installation notes displayed to the user after chart installation
 │   ├── _helpers.tpl                # Helper template functions (e.g., naming conventions, labels) used in other templates
 │   ├── deployment.yaml             # Kubernetes Deployment resource definition for the application
-│   ├── hpa.yaml                     # Horizontal Pod Autoscaler configuration for scaling the application
-│   ├── ingress.yaml                 # Ingress resource definition for external access to the service
-│   ├── migration_job.yaml           # Kubernetes Job resource for running database migrations
-│   ├── service.yaml                 # Kubernetes Service resource to expose the application internally
-│   ├── serviceaccount.yaml          # ServiceAccount resource for assigning permissions to the application
-│   └── tests                        # Directory containing Helm test templates
-│       └── test-connection.yaml     # Helm test Pod to verify that the service is accessible after deployment
+│   ├── hpa.yaml                    # Horizontal Pod Autoscaler configuration for scaling the application
+│   ├── ingress.yaml                # Ingress resource definition for external access to the service
+│   ├── migration_job.yaml          # Kubernetes Job resource for running database migrations
+│   ├── oci-secret.yaml             # Secret resource containing OCI registry credentials for pulling dependencies
+│   ├── service.yaml                # Kubernetes Service resource to expose the application internally
+│   ├── serviceaccount.yaml         # ServiceAccount resource for assigning permissions to the application
+│   └── tests                       # Directory containing Helm test templates
+│       └── test-connection.yaml    # Helm test Pod to verify that the service is accessible after deployment
 ├── .helmignore                     # Files and directories to ignore when packaging the chart (similar to .gitignore)
 ├── Chart.lock                      # Lock file for chart dependencies to ensure consistent versions
 ├── Chart.yaml                      # Main Helm chart metadata (name, version, description, dependencies, etc.)
-└── values.yaml                      # Default configuration values for the chart; can be overridden by the user
+├── LICENSE                         # Project license (Apache License 2.0)
+├── NOTICE                          # Notices for included third-party components or dependencies
+├── README.md                       # Project documentation and usage guide
+└── values.yaml                     # Default configuration values for the chart; can be overridden by the user
 ```
 
 <br>
