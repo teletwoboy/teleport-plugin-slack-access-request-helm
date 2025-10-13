@@ -1,0 +1,7 @@
+This Helm chart includes components from the following open-source projects:
+
+- Helm (https://github.com/helm/helm)
+  Licensed under the Apache License, Version 2.0
+
+- CloudPirates Postgres Helm Chart (https://artifacthub.io/packages/helm/cloudpirates-postgres/postgres)
+  Licensed under the Apache License, Version 2.0
